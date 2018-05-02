@@ -1,0 +1,305 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <!-- 定义需求点标签 -->
+  <!-- 描述XML格式为
+    <ReqPoint id = "">...</ReqPoint>
+    每个需求点仅对应一个<ReqPoint>标签，用id属性进行标识,
+    内含下一层元素有：
+        需求点描述（<description>），
+        输入参数集（<IParamSet>），
+        输出参数集（<OParamSet>），
+        条件集（<ConditionSet>）
+   -->
+   <xs:element name="ReqPoint">
+    <xs:complexType>
+      <xs:sequence>
+
+        <!-- 需求点描述 -->
+        <!-- 说明需求点的简明描述-->
+        <!-- 描述XML格式为
+        <description>...</description>
+        每个需求点内有且仅有一个需求点描述
+        -->
+        <xs:element name="description" type="xs:string" />
+
+        <!-- 输入参数集 -->
+        <!-- 说明需求点包含的所有输入参数 -->
+        <!-- 描述XML格式为
+          <IParamSet>...</IParamSet>
+          每个需求点内有且仅有一个输入集，内含有若干个输入参数（<IParam>）
+        -->
+        <xs:element name="IParamSet">
+          <xs:complexType>
+            <xs:sequence>
+
+              <!-- 定义输入参数标签 -->
+              <!-- 描述XML格式为
+                <IParam id = "">...</IParam>
+                每个参数标签，用id属性进行标识，
+                内含下一层元素有：
+                    参数名字（<name>），
+                    参数取值集合(离散型取值<DValueSet>，连续型取值<CValueSet>)
+              -->
+              <xs:element maxOccurs="unbounded" name="IParam">
+                <xs:complexType>
+                  <xs:sequence>
+                    
+                    <!-- 定义参数名字标签 -->
+                    <!-- 描述XML格式为
+                      <name>...</name>
+                    -->
+                    <xs:element name="name" type="xs:string" />
+
+                    <!-- 定义参数取值集合标签 -->
+                    <!-- 离散型取值<DValueSet>，连续型取值<CValueSet>,两者不能同时存在 -->
+                    <xs:choice>
+
+                      <!-- 定义连续型取值集合标签 -->
+                      <!-- 描述XML格式为
+                          <CValueSet>...</CValueSet>
+                      -->
+                      <xs:element minOccurs="0" name="CValueSet">
+                        <xs:complexType>
+                          <xs:sequence>
+                            
+                            <!-- 定义每一个取值区间的标签 -->
+                            <!-- 描述XML格式为
+                              <continuous id = "" operator = "">...</continuous>
+                              用id属性进行标识，同时用operator说明与数值的关系，operator只在关系运算符集合{ “eq”(==), “ne”(!=), “lt”(<), “gt”(>), “le”(<=), “ge”(>=) }取值
+                            -->
+                            <xs:element maxOccurs="unbounded" name="continuous">
+                              <xs:complexType>
+                                <xs:simpleContent>
+                                  <xs:extension base="xs:string">
+                                    <xs:attribute name="id" type="xs:string" use="required" />
+                                    <xs:attribute name="operator" type="relation_operator" use="required" />
+                                  </xs:extension>
+                                </xs:simpleContent>
+                              </xs:complexType>
+                            </xs:element>
+                          </xs:sequence>
+                        </xs:complexType>
+                      </xs:element>
+
+                      <!-- 定义连续型取值集合标签 -->
+                      <!-- 描述XML格式为
+                          <DValueSet>...</DValueSet>
+                      -->
+                      <xs:element minOccurs="0" name="DValueSet">
+                        <xs:complexType>
+                          <xs:sequence>
+
+                            <!-- 定义每一个取值区间的标签 -->
+                            <!-- 描述XML格式为
+                              <discrete id = "">...</discrete>
+                              用id属性进行标识
+                            -->
+                            <xs:element maxOccurs="unbounded" name="discrete">
+                              <xs:complexType>
+                                <xs:simpleContent>
+                                  <xs:extension base="xs:string">
+                                    <xs:attribute name="id" type="xs:string" use="required" />
+                                  </xs:extension>
+                                </xs:simpleContent>
+                              </xs:complexType>
+                            </xs:element>
+                            
+                          </xs:sequence>
+                        </xs:complexType>
+                      </xs:element>
+                    </xs:choice>
+                  </xs:sequence>
+                  
+                  <xs:attribute name="id" type="xs:string" use="required" />
+                  
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+        <!-- 定义输出参数集标签 -->
+        <!-- 描述XML格式为
+             <OParamSet>...</OParamSet>
+             每个需求点内有且仅有一个输出集，内含有若干个输出参数（<OParam>）
+        -->
+        <xs:element name="OParamSet">
+          <xs:complexType>
+            <xs:sequence>
+
+              <!-- 定义输出参数标签 -->
+              <!-- 描述XML格式为
+                   <OParam id = "">...</OParam>
+                    每个参数标签，用id属性进行标识，
+                    内含下一层元素有：
+                        参数名字（<name>,说明同上），
+                        参数取值集合(离散型取值<DValueSet>，连续型取值<CValueSet>，说明同上)
+                        默认取值(<default>)
+              -->
+              <xs:element name="OParam">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="name" type="xs:string" />
+                      <xs:choice>
+                          <xs:element minOccurs="0" name="CValueSet">
+                              <xs:complexType>
+                                  <xs:sequence>
+                                      <xs:element maxOccurs="unbounded" name="continuous">
+                                          <xs:complexType>
+                                              <xs:simpleContent>
+                                                  <xs:extension base="xs:string">
+                                                      <xs:attribute name="id" type="xs:string" use="required" />
+                                                      <xs:attribute name="operator" type="relation_operator" use="required" />
+                                                  </xs:extension>
+                                              </xs:simpleContent>
+                                          </xs:complexType>
+                                      </xs:element>
+                                  </xs:sequence>
+                              </xs:complexType>
+                          </xs:element>
+                          <xs:element minOccurs="0" name="DValueSet">
+                              <xs:complexType>
+                                  <xs:sequence>
+                                      <xs:element maxOccurs="unbounded" name="discrete">
+                                          <xs:complexType>
+                                              <xs:simpleContent>
+                                                  <xs:extension base="xs:string">
+                                                      <xs:attribute name="id" type="xs:unsignedShort" use="required" />
+                                                  </xs:extension>
+                                              </xs:simpleContent>
+                                          </xs:complexType>
+                                      </xs:element>
+                                  </xs:sequence>
+                              </xs:complexType>
+                          </xs:element>
+                      </xs:choice>
+
+                    <!-- 定义默认取值标签 -->
+                    <!-- 描述XML格式为
+                          <default>...</default>
+                          默认取值由用户指定，是当条件不满足时输出的值(值是参数取值集合中的一个值，这里需给出值对应id),如果标签值为"?"则不对输出进行规定保持系统中的原来的状态（值）
+                    -->
+                    <xs:element name="default" type="xs:string" />
+                    
+                  </xs:sequence>
+                  
+                  <xs:attribute name="id" type="xs:string" use="required" />
+                  
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+        <!-- 条件集 -->
+        <!-- 说明需求点包含的所有条件 -->
+        <!-- 描述XML格式为
+              <ConditionSet>...</ConditionSet>
+              每个需求点内有且仅有一个条件集，内含有若干个条件（<Condition>）
+        -->
+        <xs:element name="ConditionSet">
+          <xs:complexType>
+            <xs:sequence>
+
+              <!-- 定义参数标签 -->
+              <!-- 描述XML格式为
+                    <Condition>...</Condition>
+                    每个参数标签，用id属性进行标识，
+                    内含下一层元素有：
+                        条件逻辑（<Logic>），
+                        符合条件的结果集(<TrueResult>)
+              -->
+              <xs:element maxOccurs="unbounded" name="Condition">
+                <xs:complexType>
+                  <xs:sequence>
+                    
+                    <!-- 定义条件逻辑标签 -->
+                    <!-- 描述XML格式为
+                          <Logic logic_operator = "">
+                              <Operand paramId = "">...<Operand> 定义每一操作数，用paramId指向对应的参数，标签值是结果成真的参数取值的id
+                              <Logic logic_operator = "">...</Logic>  定义逻辑下的一个子逻辑，与其他同层次标签进行逻辑运算
+                              ...
+                          </Logic>
+                          logic_operator,说明了在这个逻辑标签中下一层的子逻辑或操作数的逻辑关系，只在逻辑集合{ “AND”(与), “OR”(或), “NAND”(与非), “NOR”(或非), “NOT”(非) }取值，同时，如果取值为“NOT”而逻辑标签下有超过一个的子逻辑或操作数，则这些子逻辑或操作数自动转化为与非逻辑“NAND”
+                    -->
+                    <xs:element name="Logic">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element maxOccurs="unbounded" name="Operand">
+                            <xs:complexType>
+                              <xs:simpleContent>
+                                <xs:extension base="xs:unsignedShort">
+                                  <xs:attribute name="paramId" type="xs:unsignedByte" use="required" />
+                                </xs:extension>
+                              </xs:simpleContent>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element minOccurs="0" maxOccurs="unbounded" name="Logic">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element maxOccurs="unbounded" name="Operand">
+                                  <xs:complexType>
+                                    <xs:simpleContent>
+                                      <xs:extension base="xs:string">
+                                        <xs:attribute name="paramId" type="xs:string" use="required" />
+                                      </xs:extension>
+                                    </xs:simpleContent>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                              <xs:attribute name="logic_operator" type="xs:string" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="logic_operator" type="xs:string" use="required" />
+                      </xs:complexType>
+                    </xs:element>
+                    
+                    <!-- 定义符合条件的结果集标签 -->
+                    <!--符合条件的结果集标签：
+                        <TrueResult>
+                            <Output paramId = "">...<Operand> 定义每一个输出的操作数，用paramId指向对应的参数，标签值是条件满足后输出参数的对应值的ID
+                        </TrueResult>
+                    -->
+                    <xs:element name="TrueResult">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Output">
+                            <xs:complexType>
+                              <xs:simpleContent>
+                                <xs:extension base="xs:unsignedShort">
+                                  <xs:attribute name="paramId" type="xs:unsignedByte" use="required" />
+                                </xs:extension>
+                              </xs:simpleContent>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute name="id" type="xs:string" use="required" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="id" type="xs:unsignedByte" use="required" />
+    </xs:complexType>
+  </xs:element>
+    
+    <!--关系运算符集合{ “eq”(==), “ne”(!=), “lt”(<), “gt”(>), “le”(<=), “ge”(>=) }-->
+    <xs:simpleType name="relation_operator">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="eq|ne|lt|gt|le|ge" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!--the pattern that describe the value of logic operator-->
+    <xs:simpleType name="logic_operator_value">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="eq|ne|lt|gt|le|ge" />
+        </xs:restriction>
+    </xs:simpleType>
+    
+</xs:schema>
